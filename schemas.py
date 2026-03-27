@@ -20,7 +20,7 @@ class BookRead(BaseModel):
 class BookUpdate(BookCreate):
     pass
 
-
+#user
 class UserCreate(BaseModel):
     username: str
 
@@ -30,7 +30,7 @@ class UserRead(BaseModel):
     username: str
 
     class Config:
-        from_attributes=True
+        orm_mode = True
 
 
 class UserUpdate(UserCreate):

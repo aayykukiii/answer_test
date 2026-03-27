@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database.models import User, Book
 from schemas import (UserCreate, UserUpdate, 
                      BookCreate, BookUpdate)
-
+from typing import List
 
 
 async def create_book(db: AsyncSession, book: BookCreate):
@@ -25,6 +25,33 @@ async def get_all_book(db: AsyncSession):
     result = await db.execute(select(Book))
     return result.scalars().all()
 
+
+async def create_books_batch(db: AsyncSession, books: List[BookCreate]):
+    new_books = []
+    for book in books:
+        new_book = Book(
+            title=book.title, 
+            authoor=book.authoor,
+            year=book.year,
+            owner_id=book.owner_id
+        )
+        db.add(new_book)
+        new_books.append(new_book)
+    await db.commit()
+    for book in new_books:
+        await db.refresh(book)
+    return new_books
+
+
+async def search_books(db: AsyncSession, title: str, authoor: str):
+    query = select(Book)
+    if title:
+        query = query.where(Book.title.ilike(f'%{title}%'))
+    if authoor:
+        query = query.where(Book.authoor.ilike(f'%{authoor}%'))
+    result = await db.execute(query)
+    books = result.scalars().all()
+    return books
 
 
 async def get_book_by_id(db: AsyncSession, book_id: int):
