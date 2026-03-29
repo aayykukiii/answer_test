@@ -13,10 +13,3 @@ class Book(Base):
 
     owner_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     owner: Mapped["User"] = relationship('User', back_populates="books")
-
-class User(Base):
-    __tablename__ = 'users'
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    username: Mapped[str] = mapped_column(String)
-    books: Mapped[list[Book]] = relationship('Book', back_populates="owner")

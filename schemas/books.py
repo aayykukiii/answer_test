@@ -19,19 +19,3 @@ class BookRead(BaseModel):
 
 class BookUpdate(BookCreate):
     pass
-
-#user
-class UserCreate(BaseModel):
-    username: str
-
-
-class UserRead(BaseModel):
-    id: int
-    username: str
-
-    class Config:
-        orm_mode = True
-
-
-class UserUpdate(UserCreate):
-    pass 
