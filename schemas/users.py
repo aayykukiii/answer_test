@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-
+from typing import Optional
 
 class UserCreate(BaseModel):
     username: str
@@ -10,8 +10,8 @@ class UserRead(BaseModel):
     username: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
-class UserUpdate(UserCreate):
-    pass 
+class UserUpdate(BaseModel):
+    username: Optional[str] = None

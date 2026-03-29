@@ -1,7 +1,7 @@
 from fastapi import HTTPException, APIRouter, Depends
 from database.db import get_db
 from repositories.books import (create_book, get_all_book, get_book_by_id, update_book, 
-                  delete_book_by_id, search_books, create_books_batch
+                  delete_book_by_id, search_books, create_books_batch, fake_external_api_call
                   )
 from sqlalchemy.ext.asyncio import AsyncSession
 from schemas.books import BookCreate, BookRead, BookUpdate
@@ -10,7 +10,7 @@ from schemas.books import BookCreate, BookRead, BookUpdate
 router = APIRouter()
 
 
-@router.post('/books', response_model=BookRead)
+@router.post('/books', response_model=BookRead, description='Создает новую книгу для указанного пользователя')
 async def post_book(book: BookCreate, db: AsyncSession = Depends(get_db)):
     return await create_book(db, book)
 
@@ -18,6 +18,11 @@ async def post_book(book: BookCreate, db: AsyncSession = Depends(get_db)):
 @router.post('/books/batch', response_model=list[BookRead])
 async def post_books_batch(books: list[BookCreate], db: AsyncSession = Depends(get_db)):
     return await create_books_batch(db, books)
+
+
+@router.post('/books/external')
+async def external_books_handler(titles: list[str]):
+    return await fake_external_api_call(titles)
 
 
 @router.get('/books/search', response_model=list[BookRead])

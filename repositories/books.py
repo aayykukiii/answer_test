@@ -4,6 +4,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.books import Book
 from schemas.books import BookCreate, BookUpdate
 from typing import List
+import asyncio
+
+
+semaphore = asyncio.Semaphore(5)
 
 
 async def create_book(db: AsyncSession, book: BookCreate):
@@ -33,12 +37,26 @@ async def create_books_batch(db: AsyncSession, books: List[BookCreate]):
             year=book.year,
             owner_id=book.owner_id
         )
-        db.add(new_book)
+        db.add_all(new_book)
         new_books.append(new_book)
     await db.commit()
     for book in new_books:
         await db.refresh(book)
     return new_books
+
+
+async def fake_external_api_call(book_title: str):
+    async with semaphore:
+        print(f'start request for {book_title}')
+        await asyncio.sleep(1)
+        print(f'end request for {book_title}')
+        return {'title': book_title, 'status': 'ok'}
+    
+
+async def process_books_with_throttling(books: list[str]):
+    tasks = [fake_external_api_call(title) for title in books]
+    result = await asyncio.gather(*tasks)
+    return result
 
 
 async def search_books(db: AsyncSession, title: str, authoor: str):
